@@ -35,6 +35,7 @@ import           Data.Int                      (Int16, Int32, Int64, Int8)
 import qualified Data.IntMap.Strict            as IntMap
 import qualified Data.Map                      as Map
 import qualified Data.Text                     as T
+import qualified Data.Text.Encoding            as TE
 import qualified Data.Text.Lazy                as LT
 import qualified Data.Vector                   as V
 import qualified Data.Vector.Storable          as VS
@@ -194,6 +195,7 @@ instance MessagePack S.ByteString where
     toObject   = ObjectBin
     fromObject = \case
         ObjectBin r -> return r
+        ObjectStr r -> return r
         _           -> fail "invalid encoding for ByteString"
 
 instance MessagePack L.ByteString where
@@ -201,9 +203,9 @@ instance MessagePack L.ByteString where
     fromObject obj = L.fromStrict <$> fromObject obj
 
 instance MessagePack T.Text where
-    toObject   = ObjectStr
+    toObject   = ObjectStr . TE.encodeUtf8
     fromObject = \case
-        ObjectStr s -> return s
+        ObjectStr s -> return $ TE.decodeUtf8 s
         _           -> fail "invalid encoding for Text"
 
 instance MessagePack LT.Text where
@@ -217,7 +219,7 @@ instance MessagePack a => MessagePack [a] where
     toObject   = ObjectArray . map toObject
     fromObject = \case
         ObjectArray xs -> mapM fromObject xs
-        _              -> fail "invalid encoding for list"
+        o              -> fail $ "invalid encoding for list: " ++ show o
 
 instance MessagePack a => MessagePack (V.Vector a) where
     toObject   = ObjectArray . map toObject . V.toList

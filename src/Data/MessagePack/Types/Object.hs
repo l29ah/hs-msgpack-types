@@ -32,8 +32,8 @@ data Object
       -- ^ represents a floating point number
     | ObjectDouble {-# UNPACK #-} !Double
       -- ^ represents a floating point number
-    | ObjectStr                   !T.Text
-      -- ^ extending Raw type represents a UTF-8 string
+    | ObjectStr                   !S.ByteString
+      -- ^ extending Raw type represents a string
     | ObjectBin                   !S.ByteString
       -- ^ extending Raw type represents a byte array
     | ObjectArray                 ![Object]
@@ -55,7 +55,7 @@ instance Arbitrary Object where
         , ObjectWord   <$> arbitrary
         , ObjectFloat  <$> arbitrary
         , ObjectDouble <$> arbitrary
-        , ObjectStr    <$> (T.pack <$> arbitrary)
+        , ObjectStr    <$> (S.pack <$> arbitrary)
         , ObjectBin    <$> (S.pack <$> arbitrary)
         , ObjectArray  <$> Gen.resize (n `div` 2) arbitrary
         , ObjectMap    <$> Gen.resize (n `div` 4) arbitrary

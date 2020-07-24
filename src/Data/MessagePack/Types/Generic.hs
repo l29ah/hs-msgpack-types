@@ -30,7 +30,7 @@ instance GMessagePack U1 where
     gFromObject ObjectNil = return U1
     gFromObject _         = fail "invalid encoding for custom unit type"
 
-instance (GProdPack a) => GMessagePack (a) where
+instance (GProdPack a) => GMessagePack a where
     gToObject   = toObject . prodToObject
     gFromObject o = do
         list <- fromObject o
